@@ -1,0 +1,34 @@
+# backend/cloudrun.yaml
+# Deploy: gcloud run services replace cloudrun.yaml --region=us-central1
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: taskmanager-api
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 30
+      containers:
+        - image: gcr.io/YOUR_PROJECT_ID/taskmanager-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: USE_FIRESTORE
+              value: "true"
+            - name: GOOGLE_CLOUD_PROJECT
+              value: "YOUR_PROJECT_ID"
+            - name: ALLOWED_ORIGINS
+              value: "https://YOUR_FRONTEND_DOMAIN.web.app"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi

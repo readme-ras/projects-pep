@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG AI Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink:      #09090b;
+      --ink-2:    #141416;
+      --ink-3:    #1c1c20;
+      --surface:  #212125;
+      --border:   rgba(255,255,255,0.06);
+      --border-hi:rgba(255,255,255,0.12);
+      --gold:     #c9a94a;
+      --gold-hi:  #e4c97e;
+      --gold-lo:  rgba(201,169,74,0.15);
+      --cream:    #f0ead6;
+      --muted:    #7a7a82;
+      --text:     #e8e4da;
+      --user-bg:  linear-gradient(135deg, #c9a94a 0%, #a0823a 100%);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--ink);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      display: flex;
+      height: 100vh;
+      cursor: default;
+    }
+
+    /* ─── GRAIN OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.4;
+    }
+
+    /* ─── APP SHELL ─── */
+    .app { display: flex; width: 100%; height: 100%; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: var(--ink-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* sidebar ambient glow */
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(201,169,74,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .sidebar-header {
+      padding: 32px 24px 24px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--gold);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(201,169,74,0.35);
+    }
+
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--cream);
+      letter-spacing: 0.01em;
+    }
+
+    .logo-sub {
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      padding-left: 42px;
+      margin-top: -2px;
+    }
+
+    .sidebar-section {
+      padding: 24px;
+      position: relative; z-index: 1;
+    }
+
+    .sidebar-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 14px;
+    }
+
+    /* ─── FILE DROP ZONE ─── */
+    .drop-zone {
+      border: 1px dashed var(--border-hi);
+      border-radius: 12px;
+      padding: 22px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: rgba(255,255,255,0.015);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drop-zone::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--gold-lo);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .drop-zone:hover::before, .drop-zone.dragover::before { opacity: 1; }
+    .drop-zone:hover { border-color: var(--gold); }
+
+    .drop-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+      filter: grayscale(0.3);
+    }
+
+    .drop-text {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .drop-text strong {
+      display: block;
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    /* ─── FILE LIST ─── */
+    .file-list {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--ink-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      animation: slideIn 0.2s ease;
+    }
+
+    .file-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ─── INDEX BUTTON ─── */
+    .btn-index {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-index::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .btn-index:hover {
+      background: var(--gold-hi);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(201,169,74,0.3);
+    }
+
+    .btn-index:active { transform: translateY(0); }
+
+    .btn-index:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ─── SIDEBAR FOOTER ─── */
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+      50% { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+    }
+
+    /* ─── MAIN AREA ─── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: var(--ink);
+      position: relative;
+    }
+
+    /* ambient mesh in main */
+    .main::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 60%; height: 60%;
+      background: radial-gradient(ellipse at 80% 10%, rgba(201,169,74,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ─── TOPBAR ─── */
+    .topbar {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--cream);
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+
+    .topbar-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── CHAT AREA ─── */
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative; z-index: 1;
+    }
+
+    /* empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 40px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .empty-glyph {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px;
+      font-weight: 300;
+      color: rgba(201,169,74,0.2);
+      line-height: 1;
+      font-style: italic;
+    }
+
+    .empty-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--cream);
+      font-style: italic;
+    }
+
+    .empty-sub {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 320px;
+      line-height: 1.7;
+    }
+
+    /* ─── MESSAGES ─── */
+    .msg-row {
+      display: flex;
+      gap: 14px;
+      animation: fadeUp 0.28s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .msg-row.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .avatar.bot-av {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+    }
+
+    .avatar.user-av {
+      background: var(--gold);
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+    }
+
+    .bubble-wrap { max-width: min(580px, 80%); display: flex; flex-direction: column; gap: 5px; }
+    .msg-row.user .bubble-wrap { align-items: flex-end; }
+
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      line-height: 1.7;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .bubble.bot {
+      background: var(--ink-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 6px;
+    }
+
+    .bubble.user {
+      background: var(--user-bg);
+      color: var(--ink);
+      font-weight: 500;
+      border-bottom-right-radius: 6px;
+    }
+
+    .msg-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      padding: 0 4px;
+    }
+
+    /* typing indicator */
+    .typing-dots {
+      display: inline-flex;
+      gap: 5px;
+      padding: 4px 2px;
+    }
+
+    .typing-dots span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: blink 1.2s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ─── SCROLLBAR ─── */
+    #chat::-webkit-scrollbar { width: 4px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ─── INPUT AREA ─── */
+    .input-area {
+      padding: 20px 28px 24px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--ink-3);
+      border: 1px solid var(--border-hi);
+      border-radius: 14px;
+      padding: 6px 6px 6px 18px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      gap: 10px;
+    }
+
+    .input-wrap:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,74,0.1);
+    }
+
+    #question {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      padding: 8px 0;
+      caret-color: var(--gold);
+    }
+
+    #question::placeholder { color: var(--muted); }
+
+    .send-btn {
+      width: 40px; height: 40px;
+      background: var(--gold);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      color: var(--ink);
+    }
+
+    .send-btn:hover {
+      background: var(--gold-hi);
+      transform: scale(1.05);
+      box-shadow: 0 4px 14px rgba(201,169,74,0.35);
+    }
+
+    .send-btn:active { transform: scale(0.97); }
+
+    .send-btn svg { width: 16px; height: 16px; }
+
+    .input-hint {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: rgba(122,122,130,0.5);
+      margin-top: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ─── SUCCESS TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      background: var(--ink-3);
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 13px;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: toastIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+      z-index: 10000;
+    }
+
+    .toast.hide {
+      animation: toastOut 0.3s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(8px) scale(0.97); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── SIDEBAR ─── -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        <span class="logo-name">RAG AI</span>
+      </div>
+      <div class="logo-sub">Intelligence Suite</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Knowledge Base</div>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('files').click()">
+        <input type="file" id="files" multiple hidden onchange="handleFiles(this.files)" />
+        <span class="drop-icon">📂</span>
+        <div class="drop-text">
+          <strong>Drop files here</strong>
+          or click to browse
+        </div>
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+
+      <button class="btn-index" id="indexBtn" onclick="uploadFiles()" disabled>
+        Index Documents →
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        MODEL CONNECTED
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MAIN ─── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Research Assistant</span>
+      <span class="topbar-meta" id="topbarMeta">NO DOCUMENTS INDEXED</span>
+    </div>
+
+    <div id="chat">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-glyph">∿</div>
+        <div class="empty-title">Ask anything</div>
+        <div class="empty-sub">Upload and index your documents, then ask questions to get precise, sourced answers from your knowledge base.</div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <input
+          id="question"
+          placeholder="Type your question…"
+          onkeydown="handleKey(event)"
+          autocomplete="off"
+        />
+        <button class="send-btn" onclick="ask()" title="Send (Enter)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">ENTER TO SEND &nbsp;·&nbsp; SHIFT+ENTER FOR NEW LINE</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/app.js"></script>
+<script>
+  /* ─── FILE HANDLING ─── */
+  let selectedFiles = [];
+
+  const dropZone = document.getElementById('dropZone');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function handleFiles(files) {
+    selectedFiles = Array.from(files);
+    renderFileList();
+    document.getElementById('indexBtn').disabled = selectedFiles.length === 0;
+  }
+
+  function renderFileList() {
+    const list = document.getElementById('fileList');
+    list.innerHTML = '';
+    selectedFiles.forEach(f => {
+      const el = document.createElement('div');
+      el.className = 'file-item';
+      el.innerHTML = `<div class="file-dot"></div><span class="file-name">${f.name}</span>`;
+      list.appendChild(el);
+    });
+  }
+
+  /* ─── TOAST ─── */
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span>✦</span><span>${msg}</span>`;
+    document.body.appendChild(t);
+    setTimeout(() => {
+      t.classList.add('hide');
+      setTimeout(() => t.remove(), 400);
+    }, 3000);
+  }
+
+  /* ─── OVERRIDE uploadFiles ─── */
+  async function uploadFiles() {
+    if (!selectedFiles.length) return;
+    const btn = document.getElementById('indexBtn');
+    btn.disabled = true;
+    btn.textContent = 'Indexing…';
+
+    const data = new FormData();
+    for (let f of selectedFiles) data.append('files', f);
+
+    try {
+      await fetch('/upload', { method: 'POST', body: data });
+      document.getElementById('topbarMeta').textContent = `${selectedFiles.length} DOCUMENT${selectedFiles.length > 1 ? 'S' : ''} INDEXED`;
+      showToast('Documents indexed successfully ✦');
+    } catch {
+      showToast('Upload failed — check your connection.');
+    }
+
+    btn.textContent = 'Index Documents →';
+    btn.disabled = false;
+  }
+
+  /* ─── MESSAGE RENDERING ─── */
+  let typingRow = null;
+
+  function now() {
+    return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function removeEmpty() {
+    const e = document.getElementById('emptyState');
+    if (e) e.remove();
+  }
+
+  function addMsg(text, type) {
+    removeEmpty();
+    const chat = document.getElementById('chat');
+
+    if (type === 'typing') {
+      const row = document.createElement('div');
+      row.className = 'msg-row';
+      row.innerHTML = `
+        <div class="avatar bot-av">R</div>
+        <div class="bubble-wrap">
+          <div class="bubble bot">
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>`;
+      chat.appendChild(row);
+      typingRow = row;
+      chat.scrollTop = chat.scrollHeight;
+      return;
+    }
+
+    if (type === 'bot' && typingRow) {
+      typingRow.querySelector('.bubble').innerHTML = text;
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = now();
+      typingRow.querySelector('.bubble-wrap').appendChild(timeEl);
+      typingRow = null;
+      chat.scrollTop = chat.scrollHeight;
+      return;
+    }
+
+    const row = document.createElement('div');
+    row.className = type === 'user' ? 'msg-row user' : 'msg-row';
+    const avatar = type === 'user'
+      ? `<div class="avatar user-av">U</div>`
+      : `<div class="avatar bot-av">R</div>`;
+    row.innerHTML = `
+      ${avatar}
+      <div class="bubble-wrap">
+        <div class="bubble ${type}">${text}</div>
+        <div class="msg-time">${now()}</div>
+      </div>`;
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  /* ─── ASK ─── */
+  async function ask() {
+    const input = document.getElementById('question');
+    const q = input.value.trim();
+    if (!q) return;
+    addMsg(q, 'user');
+    input.value = '';
+    addMsg('', 'typing');
+
+    try {
+      const res = await fetch('/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q })
+      });
+      const data = await res.json();
+      addMsg(data.answer, 'bot');
+    } catch {
+      addMsg('Something went wrong. Please try again.', 'bot');
+    }
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); }
+  }
+</script>
+
+</body>
+</html>

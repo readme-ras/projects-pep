@@ -1,0 +1,273 @@
+=================================================================
+  COVID-19 Global Health Analytics Report
+  Generated: 2026-02-27 10:43:15
+  Health Data Pipeline v1.0
+=================================================================
+
+  GLOBAL SUMMARY
+  ----------------------------------------
+  Total Cases  :    2,480,538,423
+  Total Deaths :       48,066,383
+  Global CFR   :           1.938 %
+  Avg Pos Rate :             7.4 %
+  Peak Day     :        8,213,559 cases
+
+  COUNTRY RANKINGS (by total cases)
+  ----------------------------------------
+  India         cases=1,649,647,976  CFR= 2.10%  vax= 95.0%
+  USA           cases= 342,981,389  CFR= 1.75%  vax= 95.0%
+  Brazil        cases= 130,102,961  CFR= 1.29%  vax= 95.0%
+  Germany       cases=  97,938,096  CFR= 1.59%  vax= 95.0%
+  UK            cases=  73,093,766  CFR= 1.89%  vax= 95.0%
+  Italy         cases=  51,157,006  CFR= 1.22%  vax= 95.0%
+  Canada        cases=  45,822,333  CFR= 0.62%  vax= 95.0%
+  France        cases=  44,935,947  CFR= 2.28%  vax= 95.0%
+  Japan         cases=  37,676,107  CFR= 1.77%  vax= 95.0%
+  Australia     cases=   7,182,842  CFR= 1.63%  vax= 95.0%
+
+  EPIDEMIC WAVES DETECTED
+  ----------------------------------------
+  Australia     Peak: 2020-02-14  Cases:     19,126
+  Australia     Peak: 2020-03-25  Cases:     32,889
+  Australia     Peak: 2020-04-12  Cases:     33,940
+  Australia     Peak: 2020-04-20  Cases:     33,384
+  Australia     Peak: 2020-04-21  Cases:     33,384
+  Australia     Peak: 2020-05-06  Cases:     31,907
+  Australia     Peak: 2020-06-20  Cases:     16,616
+  Australia     Peak: 2022-11-14  Cases:      9,575
+  Australia     Peak: 2022-12-21  Cases:     15,183
+  Australia     Peak: 2023-01-02  Cases:      7,581
+  Australia     Peak: 2023-01-30  Cases:      9,064
+  Australia     Peak: 2023-02-07  Cases:      9,116
+  Australia     Peak: 2023-02-28  Cases:     13,449
+  Australia     Peak: 2023-03-13  Cases:      9,516
+  Australia     Peak: 2023-03-28  Cases:     10,382
+  Australia     Peak: 2023-04-12  Cases:     10,416
+  Australia     Peak: 2023-05-02  Cases:     13,690
+  Australia     Peak: 2023-05-10  Cases:     10,799
+  Australia     Peak: 2023-05-24  Cases:     17,400
+  Australia     Peak: 2023-07-01  Cases:      7,584
+  Brazil        Peak: 2020-02-24  Cases:    273,272
+  Brazil        Peak: 2020-03-07  Cases:    227,083
+  Brazil        Peak: 2020-03-31  Cases:    337,711
+  Brazil        Peak: 2020-04-14  Cases:    329,902
+  Brazil        Peak: 2020-05-14  Cases:    235,410
+  Brazil        Peak: 2020-05-30  Cases:    187,848
+  Brazil        Peak: 2020-06-08  Cases:    197,064
+  Brazil        Peak: 2020-08-06  Cases:    492,628
+  Brazil        Peak: 2020-08-18  Cases:    548,428
+  Brazil        Peak: 2020-08-29  Cases:    568,642
+  Brazil        Peak: 2020-09-06  Cases:    589,075
+  Brazil        Peak: 2020-09-29  Cases:    521,965
+  Brazil        Peak: 2020-10-28  Cases:    330,348
+  Brazil        Peak: 2023-08-25  Cases:    134,273
+  Brazil        Peak: 2023-10-11  Cases:    471,250
+  Brazil        Peak: 2023-11-04  Cases:    492,963
+  Brazil        Peak: 2023-11-15  Cases:    471,064
+  Canada        Peak: 2020-10-06  Cases:     53,924
+  Canada        Peak: 2021-01-20  Cases:     54,042
+  Canada        Peak: 2021-03-31  Cases:     81,920
+  Canada        Peak: 2022-03-13  Cases:     47,004
+  Canada        Peak: 2022-03-27  Cases:     50,665
+  Canada        Peak: 2022-04-11  Cases:     54,329
+  Canada        Peak: 2022-06-30  Cases:     71,267
+  Canada        Peak: 2022-07-23  Cases:     95,559
+  Canada        Peak: 2022-08-11  Cases:    101,244
+  Canada        Peak: 2022-08-24  Cases:     99,380
+  Canada        Peak: 2022-09-06  Cases:    101,621
+  Canada        Peak: 2022-09-19  Cases:    104,420
+  Canada        Peak: 2022-10-01  Cases:    126,523
+  Canada        Peak: 2022-10-22  Cases:    114,677
+  Canada        Peak: 2022-11-08  Cases:     80,210
+  Canada        Peak: 2022-11-24  Cases:     72,215
+  Canada        Peak: 2022-12-31  Cases:     52,287
+  Canada        Peak: 2023-02-15  Cases:     80,460
+  Canada        Peak: 2023-03-16  Cases:     87,927
+  Canada        Peak: 2023-04-03  Cases:     68,504
+  Canada        Peak: 2023-04-19  Cases:     71,582
+  Canada        Peak: 2023-05-01  Cases:     75,686
+  Canada        Peak: 2023-05-19  Cases:    106,755
+  Canada        Peak: 2023-06-02  Cases:     75,834
+  Canada        Peak: 2023-06-20  Cases:     74,590
+  Canada        Peak: 2023-08-01  Cases:     87,540
+  Canada        Peak: 2023-08-23  Cases:     49,910
+  Canada        Peak: 2023-09-30  Cases:     62,466
+  Canada        Peak: 2023-11-02  Cases:     50,305
+  France        Peak: 2021-10-02  Cases:     82,665
+  France        Peak: 2021-10-16  Cases:    118,721
+  France        Peak: 2021-12-05  Cases:    172,272
+  France        Peak: 2021-12-25  Cases:    175,234
+  France        Peak: 2022-01-03  Cases:    166,883
+  France        Peak: 2022-01-19  Cases:    170,963
+  France        Peak: 2023-06-29  Cases:    103,231
+  France        Peak: 2023-07-26  Cases:    108,475
+  France        Peak: 2023-08-14  Cases:    100,423
+  France        Peak: 2023-08-22  Cases:    111,048
+  France        Peak: 2023-09-14  Cases:     90,963
+  France        Peak: 2023-09-29  Cases:     56,859
+  France        Peak: 2023-10-13  Cases:     65,423
+  Germany       Peak: 2021-02-08  Cases:    106,471
+  Germany       Peak: 2021-05-25  Cases:    168,430
+  Germany       Peak: 2021-06-14  Cases:    184,876
+  Germany       Peak: 2021-07-06  Cases:    265,976
+  Germany       Peak: 2021-07-25  Cases:    225,148
+  Germany       Peak: 2021-08-12  Cases:    203,769
+  Germany       Peak: 2021-09-05  Cases:    275,989
+  Germany       Peak: 2022-02-18  Cases:    337,772
+  Germany       Peak: 2022-12-26  Cases:    104,451
+  Germany       Peak: 2023-01-30  Cases:    130,548
+  Germany       Peak: 2023-03-03  Cases:    233,454
+  Germany       Peak: 2023-03-14  Cases:    175,774
+  Germany       Peak: 2023-04-29  Cases:    238,248
+  Germany       Peak: 2023-05-14  Cases:    252,271
+  Germany       Peak: 2023-05-23  Cases:    263,575
+  Germany       Peak: 2023-06-11  Cases:    225,687
+  Germany       Peak: 2023-06-24  Cases:    230,882
+  Germany       Peak: 2023-07-23  Cases:    247,748
+  Germany       Peak: 2023-08-15  Cases:    233,427
+  Germany       Peak: 2023-09-27  Cases:    173,875
+  Germany       Peak: 2023-10-14  Cases:    149,149
+  Germany       Peak: 2023-12-11  Cases:    107,511
+  India         Peak: 2020-01-22  Cases:  2,130,326
+  India         Peak: 2020-03-19  Cases:  1,722,064
+  India         Peak: 2020-04-09  Cases:  4,095,298
+  India         Peak: 2020-04-29  Cases:  1,746,552
+  India         Peak: 2020-05-16  Cases:  3,049,124
+  India         Peak: 2020-05-29  Cases:  2,272,044
+  India         Peak: 2020-06-16  Cases:  2,518,120
+  India         Peak: 2020-07-17  Cases:  2,647,502
+  India         Peak: 2020-08-04  Cases:  2,337,133
+  India         Peak: 2020-08-21  Cases:  2,785,449
+  India         Peak: 2023-02-20  Cases:  3,279,814
+  India         Peak: 2023-03-17  Cases:  3,385,049
+  India         Peak: 2023-04-24  Cases:  5,769,729
+  India         Peak: 2023-06-03  Cases:  6,734,429
+  India         Peak: 2023-06-13  Cases:  6,994,951
+  India         Peak: 2023-07-07  Cases:  5,873,947
+  India         Peak: 2023-07-31  Cases:  4,941,155
+  India         Peak: 2023-08-30  Cases:  3,685,955
+  India         Peak: 2023-10-04  Cases:  3,201,091
+  Italy         Peak: 2020-02-17  Cases:     86,964
+  Italy         Peak: 2020-03-31  Cases:     78,054
+  Italy         Peak: 2020-04-19  Cases:    110,814
+  Italy         Peak: 2020-05-10  Cases:    122,146
+  Italy         Peak: 2020-06-03  Cases:    167,028
+  Italy         Peak: 2020-06-14  Cases:    175,219
+  Italy         Peak: 2020-07-21  Cases:    202,940
+  Italy         Peak: 2020-08-02  Cases:    199,267
+  Italy         Peak: 2020-08-13  Cases:    201,008
+  Italy         Peak: 2020-08-14  Cases:    201,008
+  Italy         Peak: 2020-08-15  Cases:    201,008
+  Italy         Peak: 2020-08-16  Cases:    201,008
+  Italy         Peak: 2020-09-21  Cases:    193,530
+  Italy         Peak: 2020-10-12  Cases:    184,969
+  Italy         Peak: 2020-11-03  Cases:    166,629
+  Italy         Peak: 2020-11-23  Cases:    154,959
+  Italy         Peak: 2020-12-07  Cases:    134,336
+  Italy         Peak: 2020-12-25  Cases:    125,161
+  Italy         Peak: 2021-01-11  Cases:     84,048
+  Italy         Peak: 2021-02-05  Cases:     75,686
+  Japan         Peak: 2020-11-10  Cases:     96,384
+  Japan         Peak: 2020-12-03  Cases:    108,397
+  Japan         Peak: 2021-01-05  Cases:    141,824
+  Japan         Peak: 2021-01-21  Cases:    127,595
+  Japan         Peak: 2021-02-08  Cases:    133,483
+  Japan         Peak: 2021-02-26  Cases:    103,119
+  Japan         Peak: 2021-04-14  Cases:     64,178
+  Japan         Peak: 2021-05-22  Cases:     42,047
+  Japan         Peak: 2022-12-26  Cases:    116,580
+  Japan         Peak: 2023-06-11  Cases:     51,867
+  Japan         Peak: 2023-06-28  Cases:     64,945
+  Japan         Peak: 2023-07-17  Cases:     85,421
+  Japan         Peak: 2023-08-07  Cases:     77,506
+  Japan         Peak: 2023-08-18  Cases:     73,323
+  Japan         Peak: 2023-10-09  Cases:     48,801
+  UK            Peak: 2020-08-18  Cases:    141,598
+  UK            Peak: 2020-09-05  Cases:    175,007
+  UK            Peak: 2020-09-17  Cases:    179,303
+  UK            Peak: 2020-10-04  Cases:    202,566
+  UK            Peak: 2020-10-20  Cases:    179,228
+  UK            Peak: 2020-11-10  Cases:    159,404
+  UK            Peak: 2020-12-08  Cases:    149,062
+  UK            Peak: 2020-12-26  Cases:    114,597
+  UK            Peak: 2021-01-31  Cases:     82,014
+  UK            Peak: 2022-04-06  Cases:    151,188
+  UK            Peak: 2022-04-18  Cases:    125,273
+  UK            Peak: 2022-05-07  Cases:    134,998
+  UK            Peak: 2022-05-28  Cases:    136,589
+  UK            Peak: 2022-06-14  Cases:    145,937
+  UK            Peak: 2022-06-28  Cases:    132,585
+  UK            Peak: 2022-07-17  Cases:    127,854
+  UK            Peak: 2022-08-09  Cases:     94,351
+  UK            Peak: 2022-09-06  Cases:    112,835
+  UK            Peak: 2022-09-25  Cases:    148,570
+  UK            Peak: 2023-09-24  Cases:    101,067
+  UK            Peak: 2023-10-05  Cases:     93,965
+  UK            Peak: 2023-10-17  Cases:     99,856
+  UK            Peak: 2023-10-31  Cases:    101,789
+  UK            Peak: 2023-11-30  Cases:     87,749
+  UK            Peak: 2023-12-08  Cases:     85,492
+  USA           Peak: 2020-04-29  Cases:    355,516
+  USA           Peak: 2020-05-13  Cases:    616,724
+  USA           Peak: 2020-05-28  Cases:    827,495
+  USA           Peak: 2020-06-09  Cases:    455,934
+  USA           Peak: 2020-06-22  Cases:    479,376
+  USA           Peak: 2020-07-02  Cases:    487,124
+  USA           Peak: 2020-07-29  Cases:    442,376
+  USA           Peak: 2020-08-07  Cases:    437,809
+  USA           Peak: 2020-09-01  Cases:    364,441
+  USA           Peak: 2020-10-06  Cases:    463,204
+  USA           Peak: 2020-10-25  Cases:    646,988
+  USA           Peak: 2021-07-05  Cases:    385,856
+  USA           Peak: 2021-11-15  Cases:    433,454
+  USA           Peak: 2021-12-06  Cases:    546,865
+  USA           Peak: 2021-12-30  Cases:    696,422
+  USA           Peak: 2022-01-21  Cases:    826,759
+  USA           Peak: 2022-02-14  Cases:    941,225
+  USA           Peak: 2022-03-02  Cases:    739,252
+  USA           Peak: 2022-04-03  Cases:    602,000
+  USA           Peak: 2022-04-14  Cases:    593,020
+  USA           Peak: 2022-05-30  Cases:    502,122
+  USA           Peak: 2022-07-12  Cases:    361,895
+  USA           Peak: 2022-10-15  Cases:    571,010
+  USA           Peak: 2022-11-07  Cases:    419,515
+  USA           Peak: 2022-11-27  Cases:    605,384
+  USA           Peak: 2022-12-11  Cases:    587,740
+  USA           Peak: 2023-01-02  Cases:    901,968
+  USA           Peak: 2023-03-15  Cases:    607,296
+
+  ML FORECAST PERFORMANCE
+  ----------------------------------------
+  USA  —  Best model: Linear Regression
+    Linear Regression             R²=0.0000  RMSE=257  MAPE=4879.7%
+    Ridge Regression              R²=0.0000  RMSE=3,948  MAPE=282918.8%
+    Random Forest                 R²=0.0000  RMSE=15,488  MAPE=1362423.0%
+    Gradient Boosting             R²=0.0000  RMSE=157,428  MAPE=14550148.1%
+  India  —  Best model: Ridge Regression
+    Linear Regression             R²=0.8188  RMSE=576,210  MAPE=47.6%
+    Ridge Regression              R²=0.8213  RMSE=572,245  MAPE=46.7%
+    Random Forest                 R²=-2.5215  RMSE=2,540,138  MAPE=825.1%
+    Gradient Boosting             R²=-3.1258  RMSE=2,749,488  MAPE=928.4%
+  Germany  —  Best model: Linear Regression
+    Linear Regression             R²=0.6996  RMSE=31,548  MAPE=29.6%
+    Ridge Regression              R²=0.6961  RMSE=31,730  MAPE=35.3%
+    Random Forest                 R²=0.4988  RMSE=40,749  MAPE=65.7%
+    Gradient Boosting             R²=0.0293  RMSE=56,707  MAPE=109.3%
+
+
+───────────────────────────────────────────────────────
+  Pipeline Run  :  20260227_104257
+───────────────────────────────────────────────────────
+  ✅  1_ingestion                   0.347s  15,048 rows
+  ✅  2_quality                     0.134s  14,610 rows
+  ✅  3_transform                   0.903s  14,610 rows
+  ✅  4_warehouse                   0.203s  14,610 rows
+  ✅  5_analytics                   0.695s
+  ✅  6_ml_forecast                 5.461s
+  ❌  7_reporting                       ?s
+───────────────────────────────────────────────────────
+
+
+=================================================================
+  END OF REPORT
+=================================================================

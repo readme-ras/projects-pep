@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}All Items{% endblock %}
+
+{% block extra_css %}
+h1 { font-size: 22px; font-weight: 600; margin-bottom: 20px; color: #1a1d23; }
+
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #9ca3af;
+  font-size: 15px;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+
+.card-body { flex: 1; }
+.card-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.card-desc { color: #6b7280; font-size: 13px; line-height: 1.5; }
+.card-date { color: #9ca3af; font-size: 11px; margin-top: 8px; }
+
+.card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+}
+
+.btn-edit { background: #f3f4f6; color: #374151; }
+.btn-edit:hover { background: #e5e7eb; }
+
+.btn-delete { background: #fee2e2; color: #dc2626; }
+.btn-delete:hover { background: #fecaca; }
+{% endblock %}
+
+{% block content %}
+<h1>All Items <span style="color:#9ca3af;font-weight:400;font-size:15px">({{ items|length }})</span></h1>
+
+{% if not items %}
+<div class="empty">
+  <div style="font-size:40px;margin-bottom:12px">📭</div>
+  No items yet. <a href="{{ url_for('create') }}" style="color:#4f46e5">Create one →</a>
+</div>
+{% else %}
+<div class="grid">
+  {% for item in items %}
+  <div class="card">
+    <div class="card-body">
+      <div class="card-name">{{ item.name }}</div>
+      {% if item.description %}
+      <div class="card-desc">{{ item.description }}</div>
+      {% endif %}
+      <div class="card-date">ID #{{ item.id }} · {{ item.created_at[:10] }}</div>
+    </div>
+    <div class="card-actions">
+      <a class="btn btn-edit" href="{{ url_for('edit', item_id=item.id) }}">Edit</a>
+      <form method="POST" action="{{ url_for('delete', item_id=item.id) }}"
+            onsubmit="return confirm('Delete this item?')">
+        <button class="btn btn-delete" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

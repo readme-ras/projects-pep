@@ -1,0 +1,11 @@
+diffusers>=0.27.0
+transformers>=4.40.0
+accelerate>=0.29.0
+safetensors>=0.4.0
+gradio>=4.26.0
+imageio[ffmpeg]>=2.34.0
+xformers
+invisible-watermark
+opencv-python-headless
+torch>=2.2.0
+torchvision

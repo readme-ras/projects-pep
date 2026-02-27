@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NeuralLog — HF + Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0c0e;
+    --surface:   #111418;
+    --border:    #1e2329;
+    --border2:   #2a3140;
+    --green:     #00ff88;
+    --green-dim: #00cc6a;
+    --green-bg:  rgba(0,255,136,0.05);
+    --amber:     #ffb347;
+    --blue:      #5b9cf6;
+    --muted:     #4a5568;
+    --text:      #c8d3e0;
+    --text2:     #8899a6;
+    --error:     #ff5b5b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ───────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .header-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+  }
+
+  .model-badge {
+    padding: 3px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--blue);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    background: rgba(91,156,246,0.05);
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 16px;
+    height: 52px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  .workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .panel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .panel.active { display: flex; }
+
+  /* ── Chat panel ───────────────────────────────────────────── */
+  .chat-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    overflow: hidden;
+  }
+
+  .messages-area {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .messages-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+  }
+
+  .empty-state .big-icon {
+    font-size: 40px;
+    opacity: 0.3;
+  }
+
+  .empty-state p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Message bubbles ──────────────────────────────────────── */
+  .msg {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .msg-meta .role-tag {
+    font-weight: 600;
+  }
+
+  .msg.user .role-tag { color: var(--amber); }
+  .msg.assistant .role-tag { color: var(--green); }
+
+  .msg-body {
+    padding: 12px 16px;
+    border-radius: 2px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-left: 2px solid transparent;
+  }
+
+  .msg.user .msg-body {
+    background: rgba(255,179,71,0.06);
+    border-left-color: var(--amber);
+    color: var(--text);
+  }
+
+  .msg.assistant .msg-body {
+    background: var(--green-bg);
+    border-left-color: var(--green);
+    color: var(--text);
+  }
+
+  .msg.system .msg-body {
+    background: rgba(91,156,246,0.05);
+    border-left-color: var(--blue);
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* ── Typing indicator ─────────────────────────────────────── */
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--green-bg);
+    border-left: 2px solid var(--green);
+    border-radius: 2px;
+    width: fit-content;
+  }
+
+  .typing-indicator span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* ── Input area ───────────────────────────────────────────── */
+  .input-area {
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  textarea {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    padding: 10px 14px;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--green); }
+  textarea::placeholder { color: var(--muted); }
+
+  .send-btn {
+    height: 44px;
+    padding: 0 20px;
+    background: var(--green);
+    color: #000;
+    border: none;
+    border-radius: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .send-btn:hover:not(:disabled) { background: var(--green-dim); }
+  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .input-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .system-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .system-input:focus { border-color: var(--blue); }
+  .system-input::placeholder { color: var(--muted); font-style: italic; }
+
+  .control-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .toggle-log {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .toggle-log input[type=checkbox] { accent-color: var(--green); }
+
+  /* ── Session sidebar ──────────────────────────────────────── */
+  .session-sidebar {
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-title {
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .new-session-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--green);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .new-session-btn:hover {
+    background: var(--green-bg);
+    border-color: var(--green);
+  }
+
+  .session-id-display {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .session-id-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .session-id-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .sidebar-stats {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+  }
+
+  .stat-label { color: var(--muted); }
+  .stat-value { color: var(--text); font-weight: 500; }
+  .stat-value.green { color: var(--green); }
+
+  /* ── Logs panel ───────────────────────────────────────────── */
+  .logs-panel-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .logs-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .logs-toolbar h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+
+  .btn-outline {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 5px 14px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .logs-table-wrap {
+    flex: 1;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  tbody td {
+    padding: 9px 16px;
+    color: var(--text);
+    vertical-align: top;
+    max-width: 400px;
+  }
+
+  .role-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .role-pill.user      { background: rgba(255,179,71,0.12); color: var(--amber); }
+  .role-pill.assistant { background: var(--green-bg); color: var(--green); }
+
+  .msg-cell { color: var(--text2); white-space: pre-wrap; word-break: break-word; max-width: 500px; }
+
+  .empty-table {
+    text-align: center;
+    padding: 60px !important;
+    color: var(--muted) !important;
+    font-size: 12px !important;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Toast ────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 100;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error   { border-color: var(--error); color: var(--error); }
+
+  /* ── Scrollbars ───────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div style="display:flex;align-items:center;gap:24px">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      NeuralLog
+    </div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="chat">Chat</button>
+      <button class="tab-btn" data-tab="logs">Sheets Log</button>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span id="modelBadge" class="model-badge">LOADING MODEL…</span>
+    <span>API: <span id="apiStatus" style="color:var(--muted)">—</span></span>
+  </div>
+</header>
+
+<!-- Workspace -->
+<div class="workspace">
+
+  <!-- Chat Panel -->
+  <div class="panel active" id="chatPanel">
+    <div class="chat-layout">
+
+      <!-- Messages -->
+      <div class="messages-area">
+        <div class="messages-scroll" id="messagesScroll">
+          <div class="empty-state" id="emptyState">
+            <div class="big-icon">⬡</div>
+            <p>Start a conversation</p>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <div class="input-controls">
+            <span class="control-label">SYS:</span>
+            <input
+              class="system-input"
+              id="systemInput"
+              type="text"
+              placeholder="System prompt (optional)…"
+              value="You are a helpful AI assistant."
+            />
+            <label class="toggle-log">
+              <input type="checkbox" id="logToggle" checked />
+              Log to Sheets
+            </label>
+          </div>
+          <div class="input-row">
+            <textarea
+              id="promptInput"
+              placeholder="Enter prompt…"
+              rows="1"
+            ></textarea>
+            <button class="send-btn" id="sendBtn">Send ↵</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="session-sidebar">
+        <div class="sidebar-title">
+          Session
+          <button class="new-session-btn" id="newSessionBtn">+ New</button>
+        </div>
+        <div class="session-id-display">
+          <div class="session-id-label">Session ID</div>
+          <div class="session-id-value" id="sessionIdDisplay">—</div>
+        </div>
+        <div class="sidebar-stats">
+          <div class="stat-row">
+            <span class="stat-label">Messages</span>
+            <span class="stat-value" id="statMessages">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Logged</span>
+            <span class="stat-value green" id="statLogged">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Model</span>
+            <span class="stat-value" id="statModel" style="font-size:9px;word-break:break-all">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Logs Panel -->
+  <div class="panel" id="logsPanel">
+    <div class="logs-panel-content">
+      <div class="logs-toolbar">
+        <h2>Google Sheets — Chat Log</h2>
+        <div style="display:flex;gap:10px">
+          <button class="btn-outline" id="refreshLogsBtn">↻ Refresh</button>
+          <button class="btn-outline" id="initSheetBtn">Init Sheet</button>
+        </div>
+      </div>
+      <div class="logs-table-wrap">
+        <table id="logsTable">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Session ID</th>
+              <th>Role</th>
+              <th>Message</th>
+              <th>Model</th>
+            </tr>
+          </thead>
+          <tbody id="logsBody">
+            <tr><td colspan="5" class="empty-table">Click "Refresh" to load logs from Google Sheets</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';  // Empty = same origin. Change to http://localhost:8000 for separate dev server.
+
+// ── State ──────────────────────────────────────────────────────────────────
+let sessionId  = crypto.randomUUID();
+let msgCount   = 0;
+let loggedCount = 0;
+let modelId    = '';
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab + 'Panel').classList.add('active');
+  });
+});
+
+// ── Session ────────────────────────────────────────────────────────────────
+function updateSessionDisplay() {
+  document.getElementById('sessionIdDisplay').textContent = sessionId.slice(0,8) + '…' + sessionId.slice(-4);
+  document.getElementById('statMessages').textContent = msgCount;
+  document.getElementById('statLogged').textContent = loggedCount;
+}
+
+document.getElementById('newSessionBtn').addEventListener('click', () => {
+  sessionId   = crypto.randomUUID();
+  msgCount    = 0;
+  loggedCount = 0;
+  clearMessages();
+  updateSessionDisplay();
+  showToast('New session started', 'success');
+});
+
+// ── Model info on load ─────────────────────────────────────────────────────
+async function loadModelInfo() {
+  try {
+    const res = await fetch(`${API}/api/llm/model-info`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    modelId = data.model_id;
+    const shortModel = modelId.split('/').pop();
+    document.getElementById('modelBadge').textContent = shortModel;
+    document.getElementById('statModel').textContent  = modelId;
+    document.getElementById('apiStatus').textContent  = 'online';
+    document.getElementById('apiStatus').style.color  = 'var(--green)';
+  } catch {
+    document.getElementById('modelBadge').textContent = 'NOT CONNECTED';
+    document.getElementById('apiStatus').textContent  = 'offline';
+    document.getElementById('apiStatus').style.color  = 'var(--error)';
+  }
+}
+
+// ── Messages ───────────────────────────────────────────────────────────────
+function clearMessages() {
+  const scroll = document.getElementById('messagesScroll');
+  scroll.innerHTML = `<div class="empty-state" id="emptyState">
+    <div class="big-icon">⬡</div><p>Start a conversation</p></div>`;
+}
+
+function hideEmpty() {
+  const e = document.getElementById('emptyState');
+  if (e) e.remove();
+}
+
+function appendMessage(role, text, meta = '') {
+  hideEmpty();
+  const scroll = document.getElementById('messagesScroll');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="msg-meta">
+      <span class="role-tag">${role}</span>
+      <span>${meta || new Date().toLocaleTimeString()}</span>
+    </div>
+    <div class="msg-body">${escHtml(text)}</div>`;
+  scroll.appendChild(div);
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+function showTyping() {
+  hideEmpty();
+  const scroll = document.getElementById('messagesScroll');
+  const div = document.createElement('div');
+  div.id = 'typingIndicator';
+  div.className = 'msg assistant';
+  div.innerHTML = `<div class="msg-meta"><span class="role-tag">assistant</span><span>generating…</span></div>
+    <div class="typing-indicator"><span></span><span></span><span></span></div>`;
+  scroll.appendChild(div);
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+function removeTyping() {
+  document.getElementById('typingIndicator')?.remove();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Send ───────────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const promptEl = document.getElementById('promptInput');
+  const prompt   = promptEl.value.trim();
+  if (!prompt) return;
+
+  const systemPrompt = document.getElementById('systemInput').value.trim() || null;
+  const logToSheets  = document.getElementById('logToggle').checked;
+
+  appendMessage('user', prompt);
+  promptEl.value = '';
+  promptEl.style.height = '';
+  msgCount++;
+  updateSessionDisplay();
+
+  document.getElementById('sendBtn').disabled = true;
+  showTyping();
+
+  try {
+    const res = await fetch(`${API}/api/llm/generate`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ prompt, system_prompt: systemPrompt, session_id: sessionId, log_to_sheets: logToSheets }),
+    });
+
+    removeTyping();
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    appendMessage('assistant', data.response, data.model?.split('/').pop());
+    msgCount++;
+    if (logToSheets) loggedCount += 2;
+    updateSessionDisplay();
+  } catch (err) {
+    removeTyping();
+    appendMessage('system', `Error: ${err.message}`);
+    showToast(err.message, 'error');
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  promptEl.focus();
+}
+
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('promptInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// Auto-resize textarea
+document.getElementById('promptInput').addEventListener('input', function() {
+  this.style.height = '';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// ── Logs ───────────────────────────────────────────────────────────────────
+async function loadLogs() {
+  const tbody = document.getElementById('logsBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-table">Loading…</td></tr>';
+  try {
+    const res  = await fetch(`${API}/api/chat-log/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const logs = data.logs || [];
+
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-table">No log entries yet</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(row => `
+      <tr>
+        <td style="white-space:nowrap;color:var(--muted)">${row['Timestamp'] || ''}</td>
+        <td style="font-size:10px;color:var(--muted)">${(row['Session ID'] || '').slice(0,8)}…</td>
+        <td><span class="role-pill ${row['Role']}">${row['Role'] || ''}</span></td>
+        <td class="msg-cell">${escHtml((row['Message'] || '').slice(0, 200))}${(row['Message']||'').length > 200 ? '…' : ''}</td>
+        <td style="font-size:10px;color:var(--muted)">${(row['Model'] || '').split('/').pop()}</td>
+      </tr>`).join('');
+
+    showToast(`Loaded ${logs.length} entries`, 'success');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-table" style="color:var(--error)">${err.message}</td></tr>`;
+    showToast(err.message, 'error');
+  }
+}
+
+document.getElementById('refreshLogsBtn').addEventListener('click', loadLogs);
+
+document.getElementById('initSheetBtn').addEventListener('click', async () => {
+  try {
+    const res = await fetch(`${API}/api/chat-log/init`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast('ChatLog sheet initialized', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+});
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+updateSessionDisplay();
+loadModelInfo();
+</script>
+</body>
+</html>

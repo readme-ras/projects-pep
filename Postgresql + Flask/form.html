@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if item else 'New' }} Item{% endblock %}
+
+{% block extra_css %}
+.form-card {
+  background: #fff;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  padding: 28px 32px;
+  max-width: 520px;
+}
+
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+
+.field { margin-bottom: 18px; }
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+input[type=text], textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1a1d23;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type=text]:focus, textarea:focus { border-color: #4f46e5; }
+textarea { resize: vertical; min-height: 90px; }
+
+.actions { display: flex; gap: 10px; margin-top: 24px; }
+
+.btn-primary {
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover { background: #4338ca; }
+
+.btn-cancel {
+  color: #6b7280;
+  text-decoration: none;
+  padding: 9px 0;
+  font-size: 14px;
+}
+
+.btn-cancel:hover { color: #374151; }
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h1>{{ 'Edit Item' if item else 'New Item' }}</h1>
+  <form method="POST" action="{{ action }}">
+    <div class="field">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name"
+             value="{{ item.name if item else '' }}"
+             placeholder="Item name" required>
+    </div>
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description"
+                placeholder="Optional description…">{{ item.description if item else '' }}</textarea>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" type="submit">
+        {{ 'Save Changes' if item else 'Create Item' }}
+      </button>
+      <a class="btn-cancel" href="{{ url_for('index') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

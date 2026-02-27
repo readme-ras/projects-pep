@@ -1,0 +1,13 @@
+# Core
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+Pillow>=10.0.0
+numpy>=1.26.0
+python-multipart>=0.0.9
+
+# OCR Engines (install at least one)
+pytesseract>=0.3.10     # needs: apt install tesseract-ocr
+easyocr>=1.7.1          # no system deps, downloads models on first run
+
+# Optional: GPU acceleration for EasyOCR
+# torch>=2.0.0          # uncomment for CUDA support
