@@ -17,7 +17,7 @@ CHUNK_OVERLAP = 50
 MAX_TOKENS = 300
 
 # 🔥 PUT YOUR GROQ KEY HERE (must start with gsk_)
-GROQ_API_KEY = "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"
+GROQ_API_KEY = ""
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
